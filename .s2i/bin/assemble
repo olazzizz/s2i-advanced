@@ -1,0 +1,27 @@
+#!/bin/bash
+
+echo "----> Running custom assemble script <----"
+
+# Execute the default S2I assemble script
+/usr/libexec/s2i/assemble
+
+# Add custom assemble actions
+echo "----> Installing additional npm packages <----"
+npm install --production pino pino-http
+
+# Custom application setup
+echo "----> Performing additional application setup <----"
+echo "NODE_ENV=production" >> .env
+echo "APP_VERSION=$(date +%Y%m%d-%H%M%S)" >> .env
+
+# Print summary of what was installed
+echo "----> Dependency summary <----"
+npm list --depth=0
+
+# Cache node_modules if this is an incremental build
+if [ -d /tmp/artifacts/node_modules ]; then
+  echo "----> Restoring cached node_modules <----"
+  cp -Rf /tmp/artifacts/node_modules ./node_modules
+fi
+
+echo "----> Custom assemble script completed <----"

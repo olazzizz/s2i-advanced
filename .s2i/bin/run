@@ -1,0 +1,13 @@
+#!/bin/bash
+
+echo "----> Running custom run script <----"
+
+# Load environment from .env file if it exists
+if [ -f .env ]; then
+  echo "----> Loading environment from .env file <----"
+  export $(cat .env | xargs)
+fi
+
+# Override default behavior if needed
+echo "----> Starting application with custom run script <----"
+exec npm start

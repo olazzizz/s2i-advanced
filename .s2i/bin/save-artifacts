@@ -1,0 +1,9 @@
+#!/bin/bash
+
+echo "----> Saving artifacts for incremental builds <----"
+
+# Save node_modules directory
+if [ -d node_modules ]; then
+  # Compress the node_modules directory to make it faster
+  tar -cf - node_modules
+fi

@@ -1,0 +1,27 @@
+#!/bin/bash
+
+echo "----> Running post-deploy hook <----"
+
+# Get the pod name
+POD_NAME=$(hostname)
+
+# Get the namespace
+NAMESPACE=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
+
+# Create a ConfigMap with deployment info
+cat <<EOL | oc create -f -
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ${POD_NAME}-deploy-info
+  namespace: ${NAMESPACE}
+  labels:
+    app: s2i-advanced-app
+data:
+  deployTime: "$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+  podName: "${POD_NAME}"
+  version: "${VERSION:-unknown}"
+  message: "Deployment completed successfully"
+EOL
+
+echo "----> Post-deploy hook completed <----"
