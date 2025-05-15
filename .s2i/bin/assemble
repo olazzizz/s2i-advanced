@@ -1,27 +1,35 @@
 #!/bin/bash
 
-echo "----> Running custom assemble script <----"
+set -e  # Exit on error
 
-# Execute the default S2I assemble script
+echo "---> Running custom assemble script"
+
+# Restore artifacts from the previous build if they exist
+if [ -d /tmp/artifacts ] && [ "$(ls -A /tmp/artifacts 2>/dev/null)" ]; then
+  echo "---> Restoring build artifacts"
+  if [ -d /tmp/artifacts/node_modules ]; then
+    echo "---> Found node_modules directory in artifacts"
+    cp -Rfp /tmp/artifacts/node_modules ./node_modules
+  else
+    echo "---> No node_modules directory found in artifacts"
+  fi
+fi
+
+# Execute the standard S2I assemble script (install dependencies, etc)
+echo "---> Executing standard assemble script"
 /usr/libexec/s2i/assemble
 
 # Add custom assemble actions
-echo "----> Installing additional npm packages <----"
+echo "---> Installing additional npm packages"
 npm install --production pino pino-http
 
 # Custom application setup
-echo "----> Performing additional application setup <----"
-echo "NODE_ENV=production" >> .env
+echo "---> Performing additional application setup"
+echo "NODE_ENV=production" > .env
 echo "APP_VERSION=$(date +%Y%m%d-%H%M%S)" >> .env
 
 # Print summary of what was installed
-echo "----> Dependency summary <----"
+echo "---> Dependency summary"
 npm list --depth=0
 
-# Cache node_modules if this is an incremental build
-if [ -d /tmp/artifacts/node_modules ]; then
-  echo "----> Restoring cached node_modules <----"
-  cp -Rf /tmp/artifacts/node_modules ./node_modules
-fi
-
-echo "----> Custom assemble script completed <----"
+echo "---> Custom assemble script completed"

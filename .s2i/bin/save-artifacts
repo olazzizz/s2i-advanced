@@ -1,17 +1,26 @@
 #!/bin/bash
+set -e  # Exit on error
 
-echo "----> Saving artifacts for incremental builds <----"
+# This script is responsible for tar'ing dependencies
+# so they can be used in the next build
+echo "---> Saving build artifacts"
 
-# Make sure we're in the application source directory
-cd ${HOME}
-
-# Save node_modules directory
-if [ -d node_modules ]; then
-  # Compress the node_modules directory to make it faster
-  # Important: We must write directly to stdout for the S2I process to capture it correctly
-  tar -cf - node_modules
-else
-  echo "No node_modules directory found to save"
-  # Create an empty but valid tar file
-  tar -cf - -T /dev/null
+# Create a dummy file if node_modules is not present
+if [ ! -d "./node_modules" ]; then
+  echo "---> No node_modules directory found"
+  # Create an empty but valid tar file with a marker file
+  mkdir -p /tmp/dummy
+  touch /tmp/dummy/marker
+  tar -C /tmp/dummy -cf - .
+  rm -rf /tmp/dummy
+  exit 0
 fi
+
+# If node_modules exists, tar it up
+pushd ${HOME} > /dev/null
+if [ -d "./node_modules" ] && [ "$(ls -A ./node_modules 2>/dev/null)" ]; then
+  echo "---> Packaging node_modules"
+  # Create archive of dependencies
+  tar -cf - ./node_modules
+fi
+popd > /dev/null
