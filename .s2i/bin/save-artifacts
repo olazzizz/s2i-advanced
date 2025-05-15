@@ -21,6 +21,6 @@ pushd ${HOME} > /dev/null
 if [ -d "./node_modules" ] && [ "$(ls -A ./node_modules 2>/dev/null)" ]; then
   echo "---> Packaging node_modules"
   # Create archive of dependencies
-  tar -cf - ./node_modules
+  tar -cf artifacts.tar ./node_modules
 fi
 popd > /dev/null
