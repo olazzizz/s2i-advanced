@@ -2,8 +2,16 @@
 
 echo "----> Saving artifacts for incremental builds <----"
 
+# Make sure we're in the application source directory
+cd ${HOME}
+
 # Save node_modules directory
 if [ -d node_modules ]; then
   # Compress the node_modules directory to make it faster
+  # Important: We must write directly to stdout for the S2I process to capture it correctly
   tar -cf - node_modules
+else
+  echo "No node_modules directory found to save"
+  # Create an empty but valid tar file
+  tar -cf - -T /dev/null
 fi
