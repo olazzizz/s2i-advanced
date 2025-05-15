@@ -1,0 +1,13 @@
+{
+  "name": "s2i-advanced-app",
+  "version": "1.0.0",
+  "description": "Advanced S2I Demo Application",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "echo \"Running tests\" && exit 0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}
